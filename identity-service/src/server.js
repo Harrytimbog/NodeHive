@@ -11,7 +11,7 @@ const { RateLimiterRedis } = require('rate-limiter-flexible');
 const Redis = require("ioredis");
 const { rateLimit } = require('express-rate-limit');
 const { RedisStore } = require('rate-limit-redis');
-const routes = require('./routes/identityService');
+const routes = require('./routes/identityServiceRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;

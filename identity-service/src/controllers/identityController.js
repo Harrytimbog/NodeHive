@@ -1,5 +1,5 @@
 const logger = require('../utils/logger');
-const { validateRegisteration } = require('../utils/validation');
+const { validateRegisteration, validateLogin } = require('../utils/validation');
 const { User } = require('../models/User')
 const generateToken = require('../utils/generateToken');
 // user registration
@@ -12,7 +12,7 @@ const registerUser = async (req, res) => {
 
     if (error) {
       logger.warn('Validation error: ', error.details[0].message);
-      return res.status(400).json({ success: false, error: error.details[0].message });
+      return res.status(400).json({ success: false, message: error.details[0].message });
     }
 
     const { username, email, firstName, lastName, password } = req.body;
@@ -22,7 +22,7 @@ const registerUser = async (req, res) => {
     if (user) {
       // log error
       logger.warn('User already exists');
-      return res.status(400).json({ success: false, error: 'User already exists' });
+      return res.status(400).json({ success: false, message: 'User already exists' });
     }
 
     user = new User({ username, email, firstName, lastName, password });
@@ -35,15 +35,53 @@ const registerUser = async (req, res) => {
 
   } catch (error) {
     logger.error('Error registering user: ', error);
-    res.status(500).json({ success: false, error: 'Internal server error' });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };
 
 // user-login
+const loginUser = async (req, res) => {
+  logger.info('Login endpoint hit...');
+
+  try {
+    const { error } = validateLogin(req.body);
+
+    if (error) {
+      logger.warn('Validation error: ', error.details[0].message);
+      return res.status(400).json({ success: false, message: error.details[0].message });
+    }
+
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      logger.warn('User not found');
+      return res.status(400).json({ success: false, message: 'Invalid email or password' });
+    }
+
+    // Validate password
+
+    const isPasswordValid = await user.comparePassword(password);
+    if (!isPasswordValid) {
+      logger.warn('Invalid password');
+      return res.status(400).json({ success: false, message: 'Invalid password' });
+    }
+
+    // Generate token
+    const { accessToken, refreshToken } = await generateToken(user);
+
+    res.json({ success: true, message: 'Login successful', accessToken, refreshToken, userId: user._id });
+
+  } catch (error) {
+    logger.error('Error logging in user: ', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+}
 
 /// refresh token
 
 // logout
 
 
-module.exports= { registerUser }
+module.exports= { registerUser, loginUser }
