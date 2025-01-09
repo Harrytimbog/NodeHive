@@ -1,4 +1,4 @@
-const logger = require('../config/utils/logger');
+const logger = require('../utils/logger');
 
 const Post = require('../models/Post');
 
