@@ -6,6 +6,8 @@ const helmet = require('helmet');
 const { rateLimit } = require('express-rate-limit');
 const { RedisStore } = require('rate-limit-redis');
 const logger = require('./utils/logger');
+const proxy = require('express-http-proxy');
+const {globalErrorHandler} = require('./middleware/errorHandler')
 
 
 const app = express();
@@ -37,13 +39,41 @@ const sensitiveEndpointLimiter = rateLimit({
 app.use(sensitiveEndpointLimiter);
 
 
-app.use((req, res, next) => {
-  rateLimiter.consume(req.ip)
-    .then(() => {
-      next();
-    })
-    .catch(() => {
-      logger.warn(`Rate limiter exceeded for IP: ${req.ip}`);
-      res.status(429).json({ success: false, message: 'Too many requests' });
-    });
+// Proxy to the services
+
+  // e.g localhost:3000/v1/auth/register -> localhost:3000/api/auth/register
+const proxyOptions = {
+  proxyReqPathResolver: (req) => {
+    return req.originalUrl.replace(/^\/v1/, '/api');
+  },
+  proxyErrorHandler: (err, res, next) => {
+    logger.error(`Proxy error: ${err.message}`);
+    res.status(500).json({ success: false, message: 'Internal server error', error: err.message });
+    next(err);
+  },
+}
+
+// setting up the proxy for the services
+  // proxy to the identity service
+app.use('/v1/auth', proxy(process.env.IDENTITY_SERVICE_URL, {
+  ...proxyOptions,
+  proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
+    proxyReqOpts.headers["Content-Type"] = "application/json";
+    return proxyReqOpts;
+  },
+  userResDecorator: (proxyRes, proxyResData, userReq, userRes) => {
+    logger.info(`Response received from Identity service: ${proxyRes.statusCode}`);
+    return proxyResData;
+  }
+}));
+
+// Error Handler
+
+app.use(globalErrorHandler);
+
+// Start the server
+app.listen(PORT, () => {
+  logger.info(`API Gateway is running on port ${PORT}`);
+  logger.info(`Identity service is running on port ${process.env.IDENTITY_SERVICE_URL}`);
+  logger.info(`Redis is running on port ${process.env.REDIS_URL}`);
 });

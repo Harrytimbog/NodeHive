@@ -130,3 +130,19 @@
 {"level":"info","message":"Request body: {\"username\":\"Bouncy\",\"email\":\"bouncy@gmail.com\",\"password\":\"123456\"}","service":"identity-service","timestamp":"2025-01-09T16:04:50.129Z"}
 {"level":"info","message":"Registering endpoint hit...","service":"identity-service","timestamp":"2025-01-09T16:04:50.131Z"}
 {"level":"warn","message":"User already exists","service":"identity-service","timestamp":"2025-01-09T16:04:50.260Z"}
+{"level":"info","message":"Received POST request to /api/auth/register","service":"identity-service","timestamp":"2025-01-09T16:58:59.883Z"}
+{"level":"info","message":"Request body: {\"username\":\"Bouncy\",\"email\":\"bouncy@gmail.com\",\"password\":\"123456\"}","service":"identity-service","timestamp":"2025-01-09T16:58:59.884Z"}
+{"level":"info","message":"Registering endpoint hit...","service":"identity-service","timestamp":"2025-01-09T16:58:59.887Z"}
+{"level":"warn","message":"User already exists","service":"identity-service","timestamp":"2025-01-09T16:59:00.014Z"}
+{"level":"info","message":"Received POST request to /api/auth/register","service":"identity-service","timestamp":"2025-01-09T16:59:02.583Z"}
+{"level":"info","message":"Request body: {\"username\":\"Bouncy\",\"email\":\"bouncy@gmail.com\",\"password\":\"123456\"}","service":"identity-service","timestamp":"2025-01-09T16:59:02.584Z"}
+{"level":"info","message":"Registering endpoint hit...","service":"identity-service","timestamp":"2025-01-09T16:59:02.586Z"}
+{"level":"warn","message":"User already exists","service":"identity-service","timestamp":"2025-01-09T16:59:02.716Z"}
+{"level":"info","message":"Received POST request to /api/auth/register","service":"identity-service","timestamp":"2025-01-09T16:59:17.771Z"}
+{"level":"info","message":"Request body: {\"username\":\"Blessing\",\"email\":\"bouncy@gmail.com\",\"password\":\"123456\"}","service":"identity-service","timestamp":"2025-01-09T16:59:17.772Z"}
+{"level":"info","message":"Registering endpoint hit...","service":"identity-service","timestamp":"2025-01-09T16:59:17.774Z"}
+{"level":"warn","message":"User already exists","service":"identity-service","timestamp":"2025-01-09T16:59:17.900Z"}
+{"level":"info","message":"Received POST request to /api/auth/register","service":"identity-service","timestamp":"2025-01-09T16:59:34.572Z"}
+{"level":"info","message":"Request body: {\"username\":\"Blessing\",\"email\":\"blessing@gmail.com\",\"password\":\"123456\"}","service":"identity-service","timestamp":"2025-01-09T16:59:34.572Z"}
+{"level":"info","message":"Registering endpoint hit...","service":"identity-service","timestamp":"2025-01-09T16:59:34.577Z"}
+{"buffer":{"data":[103,128,0,118,173,59,145,19,62,76,226,9],"type":"Buffer"},"level":"warn","message":"User saved successfully","service":"identity-service","timestamp":"2025-01-09T16:59:34.959Z"}
