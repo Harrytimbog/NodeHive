@@ -18,3 +18,9 @@
 {"level":"error","message":"Proxy error: connect ECONNREFUSED 127.0.0.1:3001","service":"api-gateway-service","timestamp":"2025-01-09T17:38:09.070Z"}
 {"level":"error","message":"Error: connect ECONNREFUSED 127.0.0.1:3001\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1607:16)","service":"api-gateway-service","timestamp":"2025-01-09T17:38:09.082Z"}
 {"level":"info","message":"Response received from Identity service: 200","service":"api-gateway-service","timestamp":"2025-01-09T17:40:13.569Z"}
+{"level":"error","message":"Proxy error: connect ECONNREFUSED 127.0.0.1:3001","service":"api-gateway-service","timestamp":"2025-01-09T18:20:05.500Z"}
+{"level":"error","message":"Error: connect ECONNREFUSED 127.0.0.1:3001\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1607:16)","service":"api-gateway-service","timestamp":"2025-01-09T18:20:05.503Z"}
+{"level":"info","message":"Response received from Identity service: 400","service":"api-gateway-service","timestamp":"2025-01-09T18:21:02.807Z"}
+{"level":"info","message":"Response received from Identity service: 400","service":"api-gateway-service","timestamp":"2025-01-09T18:21:20.362Z"}
+{"level":"info","message":"Response received from Identity service: 201","service":"api-gateway-service","timestamp":"2025-01-09T18:21:33.818Z"}
+{"level":"info","message":"Response received from Identity service: 200","service":"api-gateway-service","timestamp":"2025-01-09T18:22:01.284Z"}
