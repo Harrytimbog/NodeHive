@@ -3,13 +3,15 @@ const mongoose = require('mongoose');
 const logger = require('./utils/logger');
 const express = require('express');
 const helmet = require('helmet');
-const cors = require('cors');
+// const cors = require('cors');
+const {configureCors} = require('./config/corsConfig');
+const {globalErrorHandler} = require('./middleware/errorHandler')
+
 const { RateLimiterRedis } = require('rate-limiter-flexible');
 const Redis = require("ioredis");
 const { rateLimit } = require('express-rate-limit');
 const { RedisStore } = require('rate-limit-redis');
 const routes = require('./routes/identityService');
-const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -27,7 +29,7 @@ const redisClient = new Redis(process.env.REDIS_URI);
 
 // middleware
 app.use(helmet());
-app.use(cors());
+app.use(configureCors());
 app.use(express.json());
 
 
@@ -83,7 +85,7 @@ app.use('/api/auth', routes)
 
 // error haandler
 
-app.use(errorHandler);
+app.use(globalErrorHandler);
 
 
 // start server
