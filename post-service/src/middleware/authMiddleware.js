@@ -1,7 +1,7 @@
 const logger = require('../utils/logger');
 
-const authenticateRequest = (rew, res, next) => {
-  const userId = req.headers['x-user-id'];
+const authenticateRequest = (req, res, next) => {
+  const userId = req.headers['x-user-id']; // get the user id from the request headers
 
   if(!userId) {
     logger.error('Access attempt without user id');
@@ -12,4 +12,4 @@ const authenticateRequest = (rew, res, next) => {
   next();
 }
 
-module.exports = authenticateRequest; 
+module.exports = authenticateRequest;

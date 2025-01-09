@@ -1,10 +1,17 @@
 const logger = require('../utils/logger');
 
 const Post = require('../models/Post');
+const { validateCreatePost } = require('../utils/validation');
 
 const createPost = async (req, res) => {
+  logger.info('Creating post end point hit by', { user: req.user.userId });
   try {
     //  1. Get the title, content, and mediaUrls from the request body
+    const { error } = validateCreatePost(req.body);
+    if (error) {
+      logger.warn('Validation error creating post', { error: error.details[0].message });
+      return res.status(400).send({ success: false, message: error.details[0].message });
+     }
     const { title, content, mediaIds } = req.body;
 
     const newPost = new Post({
