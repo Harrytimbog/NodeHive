@@ -23,4 +23,4 @@ const refreshTokenSchema = new mongoose.Schema({
 refreshTokenSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 const RefreshToken = mongoose.model('RefreshToken', refreshTokenSchema);
-module.exports = RefreshToken;
+module.exports = { RefreshToken };
