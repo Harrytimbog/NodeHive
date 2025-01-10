@@ -5,6 +5,9 @@ const { validateCreatePost } = require('../utils/validation');
 
 // Invalidate the cache for posts
 async function inValidatePostCache(req, input) {
+  // Delete the cached post
+  const cachedKey = `post:${input}`;
+  await req.redisClient.del(cachedKey);
   // 1. Get all keys related to post from the cache
   const keys = await req.redisClient.keys('posts:*');
   if (keys.length > 0) {
@@ -131,10 +134,49 @@ const getPost = async (req, res) => {
   }
 };
 
-// Fetch a post by ID
+// Edit a post by ID
+
+const editPost = async (req, res) => {
+  try {
+    const postId = req.params.id;
+    const post = await Post.findOneAndUpdate({
+      _id: postId,
+      user: req.user.userId
+    }, req.body, { new: true });
+
+    if (!post) {
+      logger.warn('Post not found');
+      return res.status(404).json({ success: false, message: 'Post not found' });
+    }
+
+    // Invalidate the cache for previously cached posts
+    await inValidatePostCache(req, req.params.id);
+    logger.info('Post edited successfully', { post });
+    res.status(200).json({ success: true, message: 'Post edited successfully', data: post });
+  } catch (error) {
+    logger.error('Error editing posts', { error: error.message });
+    res.status(500).send({ success: false, message: 'Error editing post' });
+  }
+}
+
+// Delete a post by ID
 const deletePost = async (req, res) => {
   try {
+    const postId = req.params.id;
+    const post = await Post.findOneAndDelete({
+      _id: postId,
+      user: req.user.userId
+    })
 
+    if (!post) {
+      logger.warn('Post not found');
+      return res.status(404).json({ success: false, message: 'Post not found' });
+    }
+
+    // Invalidate the cache for previously cached posts
+    await inValidatePostCache(req, req.params.id);
+    logger.info('Post deleted successfully');
+    res.status(200).json({ success: true, message: 'Post deleted successfully' });
   } catch (error) {
     logger.error('Error deleting post', { error: error.message });
     res.status(500).send({ success: false, message: 'Error deleting post by ID' });
@@ -142,4 +184,4 @@ const deletePost = async (req, res) => {
 };
 
 
-module.exports = { createPost, getAllPosts, getPost, deletePost };
+module.exports = { createPost, getAllPosts, getPost, editPost, deletePost };
