@@ -42,7 +42,7 @@ app.use(sensitiveEndpointLimiter);
 
 // Proxy to the services
 
-  // e.g localhost:3000/v1/auth/register -> localhost:3000/api/auth/register
+  // e.g localhost:3000/v1/auth/register -> localhost:3001/api/auth/register
 const proxyOptions = {
   proxyReqPathResolver: (req) => {
     return req.originalUrl.replace(/^\/v1/, '/api');

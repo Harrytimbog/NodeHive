@@ -80,7 +80,11 @@ app.use('/api/posts', sensitiveEndpointLimiter)
 
 // Routes
 
-app.use('/api/posts', postRoutes)
+app.use('/api/posts', (req, res, next) => {
+  // pass redis client to the request object for
+  req.redisClient = redisClient;
+  next();
+}, postRoutes);
 
 // error haandler
 
