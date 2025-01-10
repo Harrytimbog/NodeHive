@@ -3,6 +3,16 @@ const logger = require('../utils/logger');
 const Post = require('../models/Post');
 const { validateCreatePost } = require('../utils/validation');
 
+// Invalidate the cache for posts
+async function inValidatePostCache(req, input) {
+  // 1. Get all keys related to post from the cache
+  const keys = await req.redisClient.keys('posts:*');
+  if (keys.length > 0) {
+    logger.info('Invalidating post cache');
+    // 2. Delete all the keys
+    await req.redisClient.del(keys);
+  }
+}
 
 // Create a post
 const createPost = async (req, res) => {
@@ -24,6 +34,8 @@ const createPost = async (req, res) => {
     });
 
     await newPost.save();
+    // Invalidate the cache for previously cached posts
+    await inValidatePostCache(req, newPost._id.toString());
     logger.info('Post created successfully', { post: newPost });
 
     res.status(201).json({ success: true, message: 'Post created successfully', data: newPost });
@@ -87,12 +99,35 @@ const getAllPosts = async (req, res) => {
 };
 
 // Fetch a post by ID
-const getPosts = async (req, res) => {
+const getPost = async (req, res) => {
   try {
+    // 1. Get the post ID from the request params
+    const postId = req.params.id;
+    // 2. Check if the post is cached
+
+    const cachekey = `post:${postId}`;
+    const cachedPost = await req.redisClient.get(cachekey);
+
+    if (cachedPost) {
+      logger.info('Post fetched from cache');
+      return res.status(200).json({ success: true, message: 'Post fetched successfully', data: JSON.parse(cachedPost) });
+    }
+
+    // 3. If not cached, fetch the post from the database
+    const post = await Post.findById(postId);
+    if (!post) {
+      logger.warn('Post not found');
+      return res.status(404).json({ success: false, message: 'Post not found' });
+    }
+
+    // cache for 1 hour because posts are not updated frequently
+    logger.info('Post fetched from database and cached');
+    await req.redisClient.set(cachekey, JSON.stringify(post), 'EX', 3600);
+    res.status(200).json({ success: true, message: 'Post fetched successfully', data: post });
 
   } catch (error) {
     logger.error('Error fetching posts', { error: error.message });
-    res.status(500).send({ success: false, message: 'Error fetching posts' });
+    res.status(500).send({ success: false, message: 'Error fetching post' });
   }
 };
 
@@ -107,4 +142,4 @@ const deletePost = async (req, res) => {
 };
 
 
-module.exports = { createPost, getAllPosts, getPosts, deletePost };
+module.exports = { createPost, getAllPosts, getPost, deletePost };
