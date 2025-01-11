@@ -11,10 +11,12 @@ const { RateLimiterRedis } = require('rate-limiter-flexible');
 const Redis = require("ioredis");
 const { rateLimit } = require('express-rate-limit');
 const { RedisStore } = require('rate-limit-redis');
-const postRoutes = require('./routes/postRoutes');
+const mediaRoutes = require('./routes/mediaRoutes');
 
 const app = express();
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 3003;
+// Redis
+const redisClient = new Redis(process.env.REDIS_URI);
 
 
 // Connect to database
@@ -24,22 +26,18 @@ mongoose.connect(process.env.MONGODB_URI).then(() => {
   logger.error('Error connecting to database: ', error);
 });
 
-// Redis
-const redisClient = new Redis(process.env.REDIS_URI);
 
-// middleware
+// Middleware
 app.use(helmet());
 app.use(configureCors());
 app.use(express.json());
 
-
-/// test endpoint to check if the service is running
+// Test endpoint to check if the service is running
 app.use((req, res, next) => {
   logger.info(`Received ${req.method} request to ${req.url}`);
   logger.info(`Request body: ${JSON.stringify(req.body)}`);
   next();
 })
-
 
 // rate limiter, DDOS protection
 const rateLimiter = new RateLimiterRedis({
@@ -76,26 +74,23 @@ const sensitiveEndpointLimiter = rateLimit({
 });
 
 // apply this sensitive endpoint limiter to sensitive endpoints
-app.use('/api/posts', sensitiveEndpointLimiter)
+app.use('/api/media', sensitiveEndpointLimiter)
 
 // Routes
-
-app.use('/api/posts', (req, res, next) => {
-  // pass redis client to the request object for
+app.use('/api/media', (req, res, next) => {
+    // pass redis client to the request object for
   req.redisClient = redisClient;
   next();
-}, postRoutes);
+}, mediaRoutes);
 
-// error haandler
 
+// error handler
 app.use(globalErrorHandler);
 
-
-// start server
-app.listen(process.env.PORT, () => {
-  logger.info(`Post Service started on port ${process.env.PORT}`);
+// Start the server
+app.listen(PORT, () => {
+  logger.info(`Media service started on port ${PORT}`);
 });
-
 
 //Unhandled promise rejection
 
