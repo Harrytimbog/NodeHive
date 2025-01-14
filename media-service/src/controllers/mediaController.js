@@ -8,24 +8,25 @@ const uploadMedia = async (req, res) => {
   try {
     // Check if the request contains a file
     const file = req.file;
+    console.log(file, "req-file");
     if (!file) {
       logger.error('No file found in request. Please add a file and try again');
       return res.status(400).json({ error: 'No file found in request. Please add a file and try again' });
     }
 
     // Upload the file to Cloudinary
-    const { originalName, mimeType, buffer } = req.file
+    const { originalname, mimetype, buffer } = req.file;
 
     // Get the user ID from the request
     const userId = req.user.userId;
-    logger.info(`Start uploading file: name= ${originalName}, type =${mimeType} to Cloudinary`);
+    logger.info(`Start uploading file: name= ${originalname}, type =${mimetype} to Cloudinary`);
     const uploadResult = await uploadMediaToCloudinary(file);
     logger.info(`File uploaded to Cloudinary successfully: ${uploadResult.public_id}`);
 
     const newMedia = new Media({
       publicId: uploadResult.public_id,
-      originalName,
-      mimeType,
+      originalName: originalname,
+      mimeType: mimetype,
       url: uploadResult.secure_url,
       userId,
     });

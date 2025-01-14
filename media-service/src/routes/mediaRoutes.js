@@ -13,7 +13,7 @@ const upload = multer({
   limits: {
     fileSize: 5 * 1024 * 1024, // no larger than 5mb
   },
-}).single('file');
+});
 
 router.post('/upload', authenticateUser, (req, res, next) => {
   upload(req, res, async (err) => {
@@ -41,7 +41,8 @@ router.post('/upload', authenticateUser, (req, res, next) => {
       });
     }
     next();
-  });
+  }).single('file');
 }, uploadMedia);
+
 
 module.exports = router;

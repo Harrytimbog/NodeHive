@@ -6,7 +6,6 @@ const helmet = require('helmet');
 // const cors = require('cors');
 const {configureCors} = require('./config/corsConfig');
 const {globalErrorHandler} = require('./middleware/errorHandler')
-
 const { RateLimiterRedis } = require('rate-limiter-flexible');
 const Redis = require("ioredis");
 const { rateLimit } = require('express-rate-limit');

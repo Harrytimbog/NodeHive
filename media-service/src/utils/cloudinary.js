@@ -8,7 +8,7 @@ cloudinary.config({
 });
 
 
-const uploadMediaToCloudinary = async (file) => {
+const uploadMediaToCloudinary = (file) => {
   // Return a new promise
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream({ resource_type: 'auto' }, (error, result) => {

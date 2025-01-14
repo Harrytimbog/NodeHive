@@ -3,7 +3,9 @@ const mongoose = require('mongoose');
 const logger = require('./utils/logger');
 const express = require('express');
 const helmet = require('helmet');
+const fileUpload = require('express-fileupload');
 // const cors = require('cors');
+const bodyParser = require('body-parser');
 const {configureCors} = require('./config/corsConfig');
 const {globalErrorHandler} = require('./middleware/errorHandler')
 
@@ -30,7 +32,9 @@ mongoose.connect(process.env.MONGODB_URI).then(() => {
 // Middleware
 app.use(helmet());
 app.use(configureCors());
+app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+app.use(fileUpload());
 
 // Test endpoint to check if the service is running
 app.use((req, res, next) => {
