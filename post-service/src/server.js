@@ -11,6 +11,7 @@ const Redis = require("ioredis");
 const { rateLimit } = require('express-rate-limit');
 const { RedisStore } = require('rate-limit-redis');
 const postRoutes = require('./routes/postRoutes');
+const { connectToRabbitMQ } = require('./utils/rabbitmq');
 
 const app = express();
 const PORT = process.env.PORT || 3002;
@@ -90,11 +91,21 @@ app.use('/api/posts', (req, res, next) => {
 app.use(globalErrorHandler);
 
 
-// start server
-app.listen(process.env.PORT, () => {
-  logger.info(`Post Service started on port ${process.env.PORT}`);
-});
+async function startServer() {
+  try {
+    await connectToRabbitMQ();
+    // start server
+    app.listen(process.env.PORT, () => {
+      logger.info(`Post Service started on port ${process.env.PORT}`);
+    });
+  } catch (error) {
+    logger.error('Failed to connect to server: ', error);
+    console.log('Failed to connect to server: ', error);
+    process.exit(1);
+  }
+}
 
+startServer();
 
 //Unhandled promise rejection
 
