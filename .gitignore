@@ -7,3 +7,5 @@ node_modules/
 # Ignore log files
 **/combined.log
 **/error.log
+dump.rdb
+**/dump.rdb
