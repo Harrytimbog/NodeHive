@@ -5,8 +5,6 @@ const logger = require("../utils/logger");
 const uploadMedia = async (req, res) => {
   logger.info("Starting media upload");
   try {
-    console.log({"file-uploaded": req.file});
-
     if (!req.file) {
       logger.error("No file found. Please add a file and try again!");
       return res.status(400).json({
@@ -51,5 +49,20 @@ const uploadMedia = async (req, res) => {
   }
 };
 
+const getAllMedia = async (req, res) => {
+  try {
+    const result = await Media.find({ userId: req.user.userId });
+    res.status(200).json({
+      success: true,
+      result,
+    });
+  } catch (error) {
+    logger.error("Error fetching media", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching media",
+    });
+  }
+};
 
-module.exports = { uploadMedia };
+module.exports = { uploadMedia, getAllMedia };

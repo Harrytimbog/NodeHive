@@ -2,6 +2,7 @@ const logger = require('../utils/logger');
 
 const Post = require('../models/Post');
 const { validateCreatePost } = require('../utils/validation');
+const { publishEvent } = require('../utils/rabbitmq');
 
 // Invalidate the cache for posts
 async function inValidatePostCache(req, input) {
@@ -173,6 +174,12 @@ const deletePost = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Post not found' });
     }
 
+    // Publish Delete Post Event
+    await publishEvent('post.deleted', {
+      postId: post._id,
+      userId: req.user.userId,
+      mediaIds: post.mediaIds
+    });
     // Invalidate the cache for previously cached posts
     await inValidatePostCache(req, req.params.id);
     logger.info('Post deleted successfully');
