@@ -1,15 +1,18 @@
-const logger = require('../utils/logger');
+const logger = require("../utils/logger");
 
 const authenticateRequest = (req, res, next) => {
-  const userId = req.headers['x-user-id']; // get the user id from the request headers
+  const userId = req.headers["x-user-id"];
 
-  if(!userId) {
-    logger.error('Access attempt without user id');
-    return res.status(401).send({ success: false, message: 'User not authenticated! Please login' });
+  if (!userId) {
+    logger.warn(`Access attempted without user ID`);
+    return res.status(401).json({
+      success: false,
+      message: "Authencation required! Please login to continue",
+    });
   }
 
   req.user = { userId };
   next();
-}
+};
 
-module.exports = authenticateRequest;
+module.exports = { authenticateRequest };

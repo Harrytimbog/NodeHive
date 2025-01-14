@@ -1,50 +1,55 @@
-
-const logger = require('../utils/logger');
-const Media = require('../models/Media');
-const uploadMediaToCloudinary = require('../utils/cloudinary');
+const Media = require("../models/Media");
+const { uploadMediaToCloudinary } = require("../utils/cloudinary");
+const logger = require("../utils/logger");
 
 const uploadMedia = async (req, res) => {
-  logger.info(' Start uploading media to Cloudinary');
+  logger.info("Starting media upload");
   try {
-    // Check if the request contains a file
-    const file = req.file;
-    console.log(file, "req-file");
-    if (!file) {
-      logger.error('No file found in request. Please add a file and try again');
-      return res.status(400).json({ error: 'No file found in request. Please add a file and try again' });
+    console.log(req.file, "req.filereq.file");
+
+    if (!req.file) {
+      logger.error("No file found. Please add a file and try again!");
+      return res.status(400).json({
+        success: false,
+        message: "No file found. Please add a file and try again!",
+      });
     }
 
-    // Upload the file to Cloudinary
     const { originalname, mimetype, buffer } = req.file;
-
-    // Get the user ID from the request
     const userId = req.user.userId;
-    logger.info(`Start uploading file: name= ${originalname}, type =${mimetype} to Cloudinary`);
-    const uploadResult = await uploadMediaToCloudinary(file);
-    logger.info(`File uploaded to Cloudinary successfully: ${uploadResult.public_id}`);
 
-    const newMedia = new Media({
-      publicId: uploadResult.public_id,
+    logger.info(`File details: name=${originalname}, type=${mimetype}`);
+    logger.info("Uploading to cloudinary starting...");
+
+    const cloudinaryUploadResult = await uploadMediaToCloudinary(req.file);
+    logger.info(
+      `Cloudinary upload successfully. Public Id: - ${cloudinaryUploadResult.public_id}`
+    );
+
+    const newlyCreatedMedia = new Media({
+      publicId: cloudinaryUploadResult.public_id,
       originalName: originalname,
       mimeType: mimetype,
-      url: uploadResult.secure_url,
+      url: cloudinaryUploadResult.secure_url,
       userId,
     });
 
-    // Save the media to the database
-    await newMedia.save();
-    logger.info('Media saved to the database successfully');
+    await newlyCreatedMedia.save();
 
-    return res.status(201).json({
+    res.status(201).json({
       success: true,
-      message: 'Media uploaded successfully',
-      media: newMedia,
-      url: uploadResult.url,
+      mediaId: newlyCreatedMedia._id,
+      url: newlyCreatedMedia.url,
+      message: "Media upload is successfully",
     });
   } catch (error) {
-    logger.error(`Error uploading media to Cloudinary: ${error.message}`);
-    return res.status(500).json({ error: 'Internal server error' });
+    logger.error("Error creating media", error);
+    res.status(500).json({
+      success: false,
+      message: "Error creating media",
+    });
   }
- };
+};
+
 
 module.exports = { uploadMedia };

@@ -83,24 +83,30 @@ app.use('/v1/posts', validateToken, proxy(process.env.POST_SERVICE_URL, {
   }
 }))
 
-//// Proxy to the media service
-app.use('/v1/media', validateToken, proxy(process.env.MEDIA_SERVICE_URL, {
-  ...proxyOptions,
-  proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
-    proxyReqOpts.headers['x-user-id'] = srcReq.user.userId; // pass the user id to the media service via
-    // check if the request is not a file upload
-    if (!srcReq.headers['content-type'].startsWith('multipart/form-data')) {
-      // set the content type to json
-      proxyReqOpts.headers["Content-Type"] = "application/json";
-    }
-    return proxyReqOpts;
-  },
-  parseReqBody: true, //
-  userResDecorator: (proxyRes, proxyResData, userReq, userRes) => {
-    logger.info(`Response received from Media service: ${proxyRes.statusCode}`);
-    return proxyResData;
-  }
-}));
+//setting up proxy for our media service
+app.use(
+  "/v1/media",
+  validateToken,
+  proxy(process.env.MEDIA_SERVICE_URL, {
+    ...proxyOptions,
+    proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
+      proxyReqOpts.headers["x-user-id"] = srcReq.user.userId;
+      if (!srcReq.headers["content-type"].startsWith("multipart/form-data")) {
+        proxyReqOpts.headers["Content-Type"] = "application/json";
+      }
+
+      return proxyReqOpts;
+    },
+    userResDecorator: (proxyRes, proxyResData, userReq, userRes) => {
+      logger.info(
+        `Response received from media service: ${proxyRes.statusCode}`
+      );
+
+      return proxyResData;
+    },
+    parseReqBody: false,
+  })
+);
 
 // Error Handler
 
