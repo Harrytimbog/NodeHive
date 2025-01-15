@@ -10,6 +10,8 @@ const { RateLimiterRedis } = require("rate-limiter-flexible");
 const Redis = require("ioredis");
 const { rateLimit } = require("express-rate-limit");
 const { RedisStore } = require("rate-limit-redis");
+const { connectToRabbitMQ, consumeEvent } = require("./utils/rabbitmq");
+const { handlePostDeleted } = require("./eventHandlers/media-event-handlers");
 
 const app = express();
 const PORT = process.env.PORT || 3003;
@@ -64,6 +66,12 @@ app.use(globalErrorHandler);
 // Start the server
 async function startServer() {
   try {
+
+    await connectToRabbitMQ();
+
+    // consume all Events
+    await consumeEvent('post.deleted', handlePostDeleted);
+
     app.listen(PORT, () => {
       logger.info(`Media service running on port ${PORT}`);
     });
