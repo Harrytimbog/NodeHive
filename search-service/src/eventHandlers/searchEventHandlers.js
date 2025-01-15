@@ -1,6 +1,21 @@
 const SearchPost = require("../models/Search");
 const logger = require("../utils/logger");
 
+// Invalidate the cache for posts
+async function inValidatePostCache(req, input) {
+  // Delete the cached post
+  const cachedKey = `post:${input}`;
+  await req.redisClient.del(cachedKey);
+  // 1. Get all keys related to post from the cache
+  const keys = await req.redisClient.keys('posts:*');
+  if (keys.length > 0) {
+    logger.info('Invalidating post cache');
+    // 2. Delete all the keys
+    await req.redisClient.del(keys);
+  }
+}
+
+
 async function handlePostCreated(event) {
   try {
     // Extract required fields from the event
@@ -21,6 +36,9 @@ async function handlePostCreated(event) {
     });
 
     await newSearchPost.save();
+
+    // Invalidate the cache for previously cached searc posts
+    await inValidatePostCache(req, newSearchPost._id.toString());
     logger.info("Search post created successfully", { postId: newSearchPost._id.toString() });
   } catch (error) {
     logger.error("Error handling post created event", error);
@@ -42,6 +60,8 @@ async function handlePostDeleted(event) {
     const searchPost = await SearchPost.findOneAndDelete({ postId });
     if (searchPost) {
       logger.info("Search post deleted successfully", { postId });
+      // Invalidate the cache for previously cached search posts
+      await inValidatePostCache(req, searchPost._id.toString());
     } else {
       logger.warn("Search post not found for deletion", { postId });
     }
