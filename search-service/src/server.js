@@ -10,8 +10,8 @@ const Redis = require("ioredis");
 const { rateLimit } = require("express-rate-limit");
 const { RedisStore } = require("rate-limit-redis");
 const { connectToRabbitMQ, consumeEvent } = require("./utils/rabbitmq");
-const { searchPosts } = require("./controllers/searchController");
-const { handlePostCreated } = require("./eventHandlers/searchEventHandlers");
+const searchPosts = require("./routes/searchRoutes");
+const { handlePostCreated, handlePostDeleted } = require("./eventHandlers/searchEventHandlers");
 
 
 const app = express();
@@ -60,7 +60,7 @@ const sensitiveEndpointLimiter = rateLimit({
 app.use("/api/search", sensitiveEndpointLimiter);
 
 // Routes
-app.get("/api/search", searchPosts);
+app.use("/api/search", searchPosts);
 
 
 // Global error handler
@@ -73,7 +73,8 @@ async function startServer() {
     await connectToRabbitMQ();
 
     // consume all Events
-    await consumeEvent("postCreated", handlePostCreated);
+    await consumeEvent('post.created', handlePostCreated);
+    await consumeEvent('post.deleted', handlePostDeleted);
 
     app.listen(PORT, () => {
       logger.info(`Search service running on port ${PORT}`);
