@@ -3,7 +3,7 @@ const { deleteMediaFromCloudinary } = require("../utils/cloudinary");
 const logger = require("../utils/logger");
 
 const handlePostDeleted = async (event) => {
-  console.log({ "post-delete-event": event });
+  // console.log({ "post-delete-event": event });
   const { postId, mediaIds } = event;
 
   try {
