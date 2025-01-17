@@ -2,10 +2,7 @@ version: '3.8'
 
 services:
   api-gateway:
-    image: api-gateway
-    build:
-      context: ./api-gateway
-      dockerfile: Dockerfile
+    build: ./api-gateway
     ports:
       - "3000:3000"
     env_file: ./api-gateway/.env
@@ -15,14 +12,10 @@ services:
     environment:
       - REDIS_URL=redis://redis:6379
       - RABBITMQ_URL=amqp://rabbitmq:5672
+    restart: always
 
   identity-service:
-    image: identity-service
-    build:
-      context: ./identity-service
-      dockerfile: Dockerfile
-    ports:
-      - "3001:3001"
+    build: ./identity-service
     env_file: ./identity-service/.env
     depends_on:
       - redis
@@ -30,14 +23,10 @@ services:
     environment:
       - REDIS_URL=redis://redis:6379
       - RABBITMQ_URL=amqp://rabbitmq:5672
+    restart: always
 
   post-service:
-    image: post-service
-    build:
-      context: ./post-service
-      dockerfile: Dockerfile
-    ports:
-      - "3002:3002"
+    build: ./post-service
     env_file: ./post-service/.env
     depends_on:
       - redis
@@ -45,14 +34,10 @@ services:
     environment:
       - REDIS_URL=redis://redis:6379
       - RABBITMQ_URL=amqp://rabbitmq:5672
+    restart: always
 
   media-service:
-    image: media-service
-    build:
-      context: ./media-service
-      dockerfile: Dockerfile
-    ports:
-      - "3003:3003"
+    build: ./media-service
     env_file: ./media-service/.env
     depends_on:
       - redis
@@ -60,14 +45,10 @@ services:
     environment:
       - REDIS_URL=redis://redis:6379
       - RABBITMQ_URL=amqp://rabbitmq:5672
+    restart: always
 
   search-service:
-    image: search-service
-    build:
-      context: ./search-service
-      dockerfile: Dockerfile
-    ports:
-      - "3004:3004"
+    build: ./search-service
     env_file: ./search-service/.env
     depends_on:
       - redis
@@ -75,30 +56,20 @@ services:
     environment:
       - REDIS_URL=redis://redis:6379
       - RABBITMQ_URL=amqp://rabbitmq:5672
+    restart: always
 
   redis:
     image: redis:alpine
     ports:
       - "6379:6379"
-    volumes:
-      - redis-data:/data
 
   rabbitmq:
     image: rabbitmq:3-management
     ports:
       - "5672:5672"
       - "15672:15672"
-    volumes:
-      - rabbitmq-data:/var/lib/rabbitmq
-    environment:
-      RABBITMQ_DEFAULT_USER: rabbitmq
-      RABBITMQ_DEFAULT_PASS: rabbitmq
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 30s
       timeout: 10s
       retries: 5
-
-volumes:
-  redis-data:
-  rabbitmq-data:
