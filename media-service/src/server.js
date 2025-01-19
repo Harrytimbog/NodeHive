@@ -17,7 +17,7 @@ const app = express();
 const PORT = process.env.PORT || 3003;
 
 // Redis setup
-const redisClient = new Redis(process.env.REDIS_URI);
+const redisClient = new Redis(process.env.REDIS_URL);
 
 // Connect to MongoDB
 mongoose

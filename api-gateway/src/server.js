@@ -7,7 +7,7 @@ const { rateLimit } = require('express-rate-limit');
 const { RedisStore } = require('rate-limit-redis');
 const logger = require('./utils/logger');
 const proxy = require('express-http-proxy');
-const {globalErrorHandler} = require('./middleware/errorHandler');
+const { globalErrorHandler } = require('./middleware/errorHandler');
 const { validateToken } = require('./middleware/authMiddleware');
 
 
@@ -31,7 +31,7 @@ const sensitiveEndpointLimiter = rateLimit({
   handler: function (req, res) {
     logger.warn(`Senitive endpoint Rate limiter exceeded for IP: ${req.ip}`);
     res.status(429).json({ success: false, message: 'Too many requests' });
-   },
+  },
   store: new RedisStore({
     sendCommand: (...args) => redisClient.call(...args),
   })
@@ -42,7 +42,7 @@ app.use(sensitiveEndpointLimiter);
 
 // Proxy to the services
 
-  // e.g localhost:3000/v1/auth/register -> localhost:3001/api/auth/register
+// e.g localhost:3000/v1/auth/register -> localhost:3001/api/auth/register
 const proxyOptions = {
   proxyReqPathResolver: (req) => {
     return req.originalUrl.replace(/^\/v1/, '/api');

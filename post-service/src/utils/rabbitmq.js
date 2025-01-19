@@ -9,7 +9,7 @@ const EXCHANGE_NAME = 'facebook_events';
 async function connectToRabbitMQ() {
   try {
     // Create a connection
-    connection = await amqp.connect(process.env.RABBITMQ_URL);
+    const connection = await amqp.connect(process.env.RABBITMQ_URL);
     // Create a channel
     channel = await connection.createChannel();
     // Create a fanout exchange
@@ -23,7 +23,7 @@ async function connectToRabbitMQ() {
   } catch (error) {
     logger.error('Error connecting to RabbitMQ', error);
   }
- }
+}
 
 async function publishEvent(routingKey, message) {
   if (!channel) {

@@ -4,8 +4,8 @@ const logger = require('./utils/logger');
 const express = require('express');
 const helmet = require('helmet');
 // const cors = require('cors');
-const {configureCors} = require('./config/corsConfig');
-const {globalErrorHandler} = require('./middleware/errorHandler')
+const { configureCors } = require('./config/corsConfig');
+const { globalErrorHandler } = require('./middleware/errorHandler')
 
 const { RateLimiterRedis } = require('rate-limiter-flexible');
 const Redis = require("ioredis");
@@ -25,7 +25,7 @@ mongoose.connect(process.env.MONGODB_URI).then(() => {
 });
 
 // Redis
-const redisClient = new Redis(process.env.REDIS_URI);
+const redisClient = new Redis(process.env.REDIS_URL);
 
 // middleware
 app.use(helmet());
@@ -70,7 +70,7 @@ const sensitiveEndpointLimiter = rateLimit({
   handler: function (req, res) {
     logger.warn(`Senitive endpoint Rate limiter exceeded for IP: ${req.ip}`);
     res.status(429).json({ success: false, message: 'Too many requests' });
-   },
+  },
   store: new RedisStore({
     sendCommand: (...args) => redisClient.call(...args),
   })
@@ -99,4 +99,4 @@ app.listen(process.env.PORT, () => {
 process.on('unhandledRejection', (reason, promise) => {
   logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
   // Application specific logging, throwing an error, or other logic here
- });
+});
