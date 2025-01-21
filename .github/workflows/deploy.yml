@@ -28,6 +28,38 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Generate .env files
+        run: |
+          echo "Generating .env files..."
+          # Generate .env for api-gateway
+          echo "PORT=${{ secrets.API_GATEWAY_PORT }}" > api-gateway/.env
+          echo "NODE_ENV=production" >> api-gateway/.env
+          echo "IDENTITY_SERVICE_URL=${{ secrets.API_GATEWAY_IDENTITY_SERVICE_URL }}" >> api-gateway/.env
+          echo "POST_SERVICE_URL=${{ secrets.API_GATEWAY_POST_SERVICE_URL }}" >> api-gateway/.env
+          echo "MEDIA_SERVICE_URL=${{ secrets.API_GATEWAY_MEDIA_SERVICE_URL }}" >> api-gateway/.env
+          echo "SEARCH_SERVICE_URL=${{ secrets.API_GATEWAY_SEARCH_SERVICE_URL }}" >> api-gateway/.env
+          echo "JWT_SECRET=${{ secrets.API_GATEWAY_JWT_SECRET }}" >> api-gateway/.env
+          echo "RABBITMQ_URL=${{ secrets.API_GATEWAY_RABBITMQ_URL }}" >> api-gateway/.env
+          echo "REDIS_URL=${{ secrets.API_GATEWAY_REDIS_URL }}" >> api-gateway/.env
+
+          # Generate .env for identity-service
+          echo "PORT=${{ secrets.IDENTITY_SERVICE_PORT }}" > identity-service/.env
+          echo "MONGODB_URI=${{ secrets.IDENTITY_SERVICE_MONGODB_URI }}" >> identity-service/.env
+          echo "JWT_SECRET=${{ secrets.IDENTITY_SERVICE_JWT_SECRET }}" >> identity-service/.env
+          echo "NODE_ENV=production" >> identity-service/.env
+          echo "REDIS_URL=${{ secrets.IDENTITY_SERVICE_REDIS_URL }}" >> identity-service/.env
+          echo "RABBITMQ_URL=${{ secrets.IDENTITY_SERVICE_RABBITMQ_URL }}" >> identity-service/.env
+
+          # Repeat similar steps for media-service, post-service, and search-service
+
+      - name: Debug .env files
+        run: |
+          echo "Debugging .env files..."
+          ls -l api-gateway/.env
+          cat api-gateway/.env
+          ls -l identity-service/.env
+          cat identity-service/.env
+
       - name: Build and push Docker images
         run: |
           docker-compose -f docker-compose.yml build
@@ -84,32 +116,7 @@ jobs:
             echo "REDIS_URL=${{ secrets.IDENTITY_SERVICE_REDIS_URL }}" >> identity-service/.env
             echo "RABBITMQ_URL=${{ secrets.IDENTITY_SERVICE_RABBITMQ_URL }}" >> identity-service/.env
 
-            # Generate .env for media-service
-            echo "PORT=${{ secrets.MEDIA_SERVICE_PORT }}" > media-service/.env
-            echo "MONGODB_URI=${{ secrets.MEDIA_SERVICE_MONGODB_URI }}" >> media-service/.env
-            echo "CLOUDINARY_CLOUD_NAME=${{ secrets.MEDIA_SERVICE_CLOUDINARY_CLOUD_NAME }}" >> media-service/.env
-            echo "CLOUDINARY_API_KEY=${{ secrets.MEDIA_SERVICE_CLOUDINARY_API_KEY }}" >> media-service/.env
-            echo "CLOUDINARY_API_SECRET=${{ secrets.MEDIA_SERVICE_CLOUDINARY_API_SECRET }}" >> media-service/.env
-            echo "NODE_ENV=production" >> media-service/.env
-            echo "REDIS_URL=${{ secrets.MEDIA_SERVICE_REDIS_URL }}" >> media-service/.env
-            echo "RABBITMQ_URL=${{ secrets.MEDIA_SERVICE_RABBITMQ_URL }}" >> media-service/.env
-            echo "JWT_SECRET=${{ secrets.MEDIA_SERVICE_JWT_SECRET }}" >> media-service/.env
-
-            # Generate .env for post-service
-            echo "PORT=${{ secrets.POST_SERVICE_PORT }}" > post-service/.env
-            echo "MONGODB_URI=${{ secrets.POST_SERVICE_MONGODB_URI }}" >> post-service/.env
-            echo "JWT_SECRET=${{ secrets.POST_SERVICE_JWT_SECRET }}" >> post-service/.env
-            echo "NODE_ENV=production" >> post-service/.env
-            echo "REDIS_URL=${{ secrets.POST_SERVICE_REDIS_URL }}" >> post-service/.env
-            echo "RABBITMQ_URL=${{ secrets.POST_SERVICE_RABBITMQ_URL }}" >> post-service/.env
-
-            # Generate .env for search-service
-            echo "PORT=${{ secrets.SEARCH_SERVICE_PORT }}" > search-service/.env
-            echo "MONGODB_URI=${{ secrets.SEARCH_SERVICE_MONGODB_URI }}" >> search-service/.env
-            echo "JWT_SECRET=${{ secrets.SEARCH_SERVICE_JWT_SECRET }}" >> search-service/.env
-            echo "NODE_ENV=production" >> search-service/.env
-            echo "REDIS_URL=${{ secrets.SEARCH_SERVICE_REDIS_URL }}" >> search-service/.env
-            echo "RABBITMQ_URL=${{ secrets.SEARCH_SERVICE_RABBITMQ_URL }}" >> search-service/.env
+            # Repeat similar steps for media-service, post-service, and search-service
 
             docker-compose down
             docker-compose up -d
