@@ -1,5 +1,8 @@
 const amqp = require('amqplib');
 const logger = require('./logger');
+const { envConfig } = require('../config');
+
+const { rabbitmqUrl } = envConfig;
 
 let connection = null;
 let channel = null;
@@ -9,7 +12,7 @@ const EXCHANGE_NAME = 'facebook_events';
 async function connectToRabbitMQ() {
   try {
     // Create a connection
-    const connection = await amqp.connect(process.env.RABBITMQ_URL);
+    const connection = await amqp.connect(rabbitmqUrl);
     // Create a channel
     channel = await connection.createChannel();
     // Create a fanout exchange

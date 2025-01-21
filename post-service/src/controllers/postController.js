@@ -40,12 +40,11 @@ const createPost = async (req, res) => {
     await newPost.save();
 
     // Publish Create Post Event
-    await publishEvent('post.created', {
+    await publishEvent("post.created", {
       postId: newPost._id.toString(),
       userId: newPost.user.toString(),
       title: newPost.title,
       content: newPost.content,
-      mediaIds: newPost.mediaIds,
       createdAt: newPost.createdAt,
     });
 
@@ -186,7 +185,7 @@ const deletePost = async (req, res) => {
     }
 
     // Publish Delete Post Event
-    await publishEvent('post.deleted', {
+    await publishEvent("post.deleted", {
       postId: post._id,
       userId: req.user.userId,
       mediaIds: post.mediaIds

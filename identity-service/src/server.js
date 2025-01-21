@@ -12,20 +12,26 @@ const Redis = require("ioredis");
 const { rateLimit } = require('express-rate-limit');
 const { RedisStore } = require('rate-limit-redis');
 const routes = require('./routes/identityServiceRoutes');
+const { envConfig } = require('./config')
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const { port,
+  redisUrl,
+  mongodbUri,
+} = envConfig;
+
+const PORT = port;
 
 // connect to db
 
-mongoose.connect(process.env.MONGODB_URI).then(() => {
+mongoose.connect(mongodbUri).then(() => {
   logger.info('Connected to database');
 }).catch((error) => {
   logger.error('Error connecting to database: ', error);
 });
 
 // Redis
-const redisClient = new Redis(process.env.REDIS_URL);
+const redisClient = new Redis(redisUrl);
 
 // middleware
 app.use(helmet());
@@ -89,8 +95,8 @@ app.use(globalErrorHandler);
 
 
 // start server
-app.listen(process.env.PORT, () => {
-  logger.info(`Identity Service started on port ${process.env.PORT}`);
+app.listen(PORT, () => {
+  logger.info(`Identity Service started on port ${PORT}`);
 });
 
 

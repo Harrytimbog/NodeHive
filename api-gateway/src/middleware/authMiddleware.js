@@ -1,6 +1,8 @@
 const logger = require("../utils/logger");
 const jwt = require('jsonwebtoken');
+const{ envConfig } = require('../config');
 
+const { jwtSecret } = envConfig;
 
 const validateToken = (req, res, next) => {
   // get the token from the header
@@ -14,7 +16,7 @@ const validateToken = (req, res, next) => {
 
   // verify the token
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+  jwt.verify(token, jwtSecret, (err, user) => {
     if (err) {
       logger.error(`Invalid token!: ${err.message}`);
       return res.status(429).json({ success: false, message: 'Invalid token' });

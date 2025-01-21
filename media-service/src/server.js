@@ -12,16 +12,20 @@ const { rateLimit } = require("express-rate-limit");
 const { RedisStore } = require("rate-limit-redis");
 const { connectToRabbitMQ, consumeEvent } = require("./utils/rabbitmq");
 const { handlePostDeleted } = require("./eventHandlers/media-event-handlers");
+const { envConfig } = require("./config");
 
 const app = express();
-const PORT = process.env.PORT || 3003;
+
+const { port, redisUrl, mongodbUri } = envConfig;
+
+const PORT = port;
 
 // Redis setup
-const redisClient = new Redis(process.env.REDIS_URL);
+const redisClient = new Redis(redisUrl);
 
 // Connect to MongoDB
 mongoose
-  .connect(process.env.MONGODB_URI)
+  .connect(mongodbUri)
   .then(() => logger.info("Connected to mongodb"))
   .catch((e) => logger.error("Mongo connection error", e));
 
@@ -70,7 +74,7 @@ async function startServer() {
     await connectToRabbitMQ();
 
     // consume all Events
-    await consumeEvent('post.deleted', handlePostDeleted);
+    await consumeEvent("post.deleted", handlePostDeleted);
 
     app.listen(PORT, () => {
       logger.info(`Media service running on port ${PORT}`);

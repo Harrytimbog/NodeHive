@@ -12,20 +12,24 @@ const { rateLimit } = require('express-rate-limit');
 const { RedisStore } = require('rate-limit-redis');
 const postRoutes = require('./routes/postRoutes');
 const { connectToRabbitMQ } = require('./utils/rabbitmq');
+const { envConfig } = require('./config');
 
 const app = express();
-const PORT = process.env.PORT || 3002;
+
+const { port, redisUrl, mongodbUri } = envConfig;
+
+const PORT = port;
 
 
 // Connect to database
-mongoose.connect(process.env.MONGODB_URI).then(() => {
+mongoose.connect(mongodbUri).then(() => {
   logger.info('Connected to database');
 }).catch((error) => {
   logger.error('Error connecting to database: ', error);
 });
 
 // Redis
-const redisClient = new Redis(process.env.REDIS_URL);
+const redisClient = new Redis(redisUrl);
 
 // middleware
 app.use(helmet());
@@ -95,8 +99,8 @@ async function startServer() {
   try {
     await connectToRabbitMQ();
     // start server
-    app.listen(process.env.PORT, () => {
-      logger.info(`Post Service started on port ${process.env.PORT}`);
+    app.listen(PORT, () => {
+      logger.info(`Post Service started on port ${PORT}`);
     });
   } catch (error) {
     logger.error('Failed to connect to server: ', error);

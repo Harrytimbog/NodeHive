@@ -12,17 +12,21 @@ const { RedisStore } = require("rate-limit-redis");
 const { connectToRabbitMQ, consumeEvent } = require("./utils/rabbitmq");
 const searchPostsRoutes = require("./routes/searchRoutes");
 const { handlePostCreated, handlePostDeleted } = require("./eventHandlers/searchEventHandlers");
+const { envConfig } = require("./config");
 
 
 const app = express();
-const PORT = process.env.PORT || 3004;
+
+const { port, redisUrl, mongodbUri } = envConfig;
+
+const PORT = port;
 
 // Redis setup
-const redisClient = new Redis(process.env.REDIS_URL);
+const redisClient = new Redis(redisUrl);
 
 // Connect to MongoDB
 mongoose
-  .connect(process.env.MONGODB_URI)
+  .connect(mongodbUri)
   .then(() => logger.info("Connected to mongodb"))
   .catch((e) => logger.error("Mongo connection error", e));
 

@@ -1,10 +1,14 @@
 const cloudinary = require("cloudinary").v2;
 const logger = require("./logger");
+const { envConfig } = require("../config");
+
+
+const { cloudinaryDetails } = envConfig;
 
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+  cloud_name: cloudinaryDetails.cloudName,
+  api_key: cloudinaryDetails.apiKey,
+  api_secret: cloudinaryDetails.apiSecret,
 });
 
 const uploadMediaToCloudinary = (file) => {

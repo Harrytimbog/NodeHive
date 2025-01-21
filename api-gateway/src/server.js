@@ -1,6 +1,6 @@
 require('dotenv').config();
 const express = require('express');
-const { configureCors } = require('./config/corsConfig')
+const { configureCors } = require('./config/corsConfig');
 const Redis = require('ioredis');
 const helmet = require('helmet');
 const { rateLimit } = require('express-rate-limit');
@@ -9,11 +9,23 @@ const logger = require('./utils/logger');
 const proxy = require('express-http-proxy');
 const { globalErrorHandler } = require('./middleware/errorHandler');
 const { validateToken } = require('./middleware/authMiddleware');
+const { envConfig } = require('./config');
 
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-const redisClient = new Redis(process.env.REDIS_URL);
+
+const { port,
+  redisUrl,
+  mongodbUri,
+  identityServiceUrl,
+  postServiceUrl,
+  mediaServiceUrl,
+  searchServiceUrl
+} = envConfig;
+
+const PORT = port;
+
+const redisClient = new Redis(redisUrl);
 
 // middleware
 app.use(helmet());
@@ -56,7 +68,7 @@ const proxyOptions = {
 
 // setting up the proxy for the services
 //// proxy to the identity service
-app.use('/v1/auth', proxy(process.env.IDENTITY_SERVICE_URL, {
+app.use('/v1/auth', proxy(identityServiceUrl, {
   ...proxyOptions,
   proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
     proxyReqOpts.headers["Content-Type"] = "application/json";
@@ -69,7 +81,7 @@ app.use('/v1/auth', proxy(process.env.IDENTITY_SERVICE_URL, {
 }));
 
 //// Setting up proxy to the Post service
-app.use('/v1/posts', validateToken, proxy(process.env.POST_SERVICE_URL, {
+app.use('/v1/posts', validateToken, proxy(postServiceUrl, {
   ...proxyOptions,
   proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
     proxyReqOpts.headers["Content-Type"] = "application/json";
@@ -87,7 +99,7 @@ app.use('/v1/posts', validateToken, proxy(process.env.POST_SERVICE_URL, {
 app.use(
   "/v1/media",
   validateToken,
-  proxy(process.env.MEDIA_SERVICE_URL, {
+  proxy(mediaServiceUrl, {
     ...proxyOptions,
     proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
       proxyReqOpts.headers["x-user-id"] = srcReq.user.userId;
@@ -109,7 +121,7 @@ app.use(
 );
 
 //// Setting up proxy to the Search service
-app.use('/v1/search', validateToken, proxy(process.env.SEARCH_SERVICE_URL, {
+app.use('/v1/search', validateToken, proxy(searchServiceUrl, {
   ...proxyOptions,
   proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
     proxyReqOpts.headers["Content-Type"] = "application/json";
@@ -130,9 +142,9 @@ app.use(globalErrorHandler);
 // Start the server
 app.listen(PORT, () => {
   logger.info(`API Gateway is running on port ${PORT}`);
-  logger.info(`Identity service is running on port ${process.env.IDENTITY_SERVICE_URL}`);
-  logger.info(`Post service is running on port ${process.env.POST_SERVICE_URL}`);
-  logger.info(`Media service is running on port ${process.env.MEDIA_SERVICE_URL}`);
-  logger.info(`Search service is running on port ${process.env.SEARCH_SERVICE_URL}`);
-  logger.info(`Redis is running on port ${process.env.REDIS_URL}`);
+  logger.info(`Identity service is running on port ${identityServiceUrl}`);
+  logger.info(`Post service is running on port ${postServiceUrl}`);
+  logger.info(`Media service is running on port ${mediaServiceUrl}`);
+  logger.info(`Search service is running on port ${searchServiceUrl}`);
+  logger.info(`Redis is running on port ${redisUrl}`);
 });
