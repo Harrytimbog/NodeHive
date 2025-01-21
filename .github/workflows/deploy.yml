@@ -38,7 +38,16 @@ jobs:
           echo "RABBITMQ_URL=${{ secrets.API_GATEWAY_RABBITMQ_URL }}" >> api-gateway/.env
           echo "REDIS_URL=${{ secrets.API_GATEWAY_REDIS_URL }}" >> api-gateway/.env
 
-          # Create .env for other services similarly...
+          # Create .env for identity-service
+          mkdir -p identity-service
+          echo "PORT=${{ secrets.IDENTITY_SERVICE_PORT }}" > identity-service/.env
+          echo "MONGODB_URI=${{ secrets.IDENTITY_SERVICE_MONGODB_URI }}" >> identity-service/.env
+          echo "JWT_SECRET=${{ secrets.IDENTITY_SERVICE_JWT_SECRET }}" >> identity-service/.env
+          echo "NODE_ENV=production" >> identity-service/.env
+          echo "REDIS_URL=${{ secrets.IDENTITY_SERVICE_REDIS_URL }}" >> identity-service/.env
+          echo "RABBITMQ_URL=${{ secrets.IDENTITY_SERVICE_RABBITMQ_URL }}" >> identity-service/.env
+
+          # Add similar sections for other services as needed...
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
